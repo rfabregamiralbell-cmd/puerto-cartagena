@@ -44,6 +44,12 @@ html, body, #root {
   transition: transform 0.15s;
 }
 .emoji-marker.selected { transform: scale(1.3); filter: drop-shadow(0 0 6px var(--gold)); }
+.emoji-marker { position: relative; }
+.ready-badge {
+  position: absolute; top: -6px; right: -6px; font-size: 14px;
+  animation: ready-pulse 1.2s ease-in-out infinite;
+}
+@keyframes ready-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }
 
 /* ── Top HUD ── */
 .top-hud {

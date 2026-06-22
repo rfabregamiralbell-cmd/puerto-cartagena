@@ -85,25 +85,29 @@ src/
 
 ---
 
-## ✅ Fase actual (v0.2)
+## ✅ Fase actual (v0.3 — Fase A: Ciudad viva)
 
 - [x] Mapa real de Cartagena (Leaflet + OSM)
 - [x] Distritos como polígonos GeoJSON con marcadores emoji
 - [x] Colocación: toca el mapa → preview → validar → confirmar
 - [x] Validación de terreno (agua/costa/tierra/abierta/defensiva)
-- [x] Modelo de defensa tipo LiDAR (elevación, visión, costa, paso)
-- [x] Valoración de posición de Fortaleza + radio de cobertura en mapa
-- [x] Capas conmutables (distritos, edificios, defensa, rutas)
+- [x] **Economía semi-activa**: los distritos acumulan producción en su propio almacén; tócalos para **recoger** (badge 📦 en el mapa)
+- [x] **Almacenes con límite real**: cada Almacén amplía la capacidad máxima de recursos; demolerlo la reduce
+- [x] **Logística de caminos**: un distrito productor debe estar conectado al Puerto (directo o a través de Caminos Interiores) para poder exportar; si no, avisa
+- [x] **Sinergias por adyacencia**: distritos complementarios cercanos dan bonus de producción (hasta +40%)
+- [x] **Capa de logística** en el mapa: dibuja los enlaces entre distritos y el puerto
+- [x] Modelo de defensa tipo LiDAR + valoración de Fortaleza
+- [x] Capas conmutables (distritos, edificios, defensa, logística, rutas)
 - [x] UI mobile-first con bottom-sheets
-- [x] Economía en tiempo real + niveles + autosave (localStorage)
+- [x] Progresión por nivel de Cabildo + autosave (localStorage) + migración de saves
+- [x] Suite de tests (Vitest): geoUtils, validación de terreno, defensa, logística, reducer
 
-## 🔮 Siguiente (v0.3)
+## 🔮 Siguiente (Fase B — El comercio respira)
 
-- [ ] Conectar engines naval/trade/defense (refactor a funciones puras)
-- [ ] Asignar barcos a rutas + ciclo de comercio completo
-- [ ] Capa de logística (caminos conectando distritos)
-- [ ] Raids al puerto usando la defensa espacial real
-- [ ] Detección de agua por muestreo de tiles (mejorar `visualWaterValidator`)
+- [ ] Rutas dibujadas en el mapa mundial con barcos
+- [ ] Zarpe automático + oro al volver
+- [ ] Vientos/corrientes como modificadores de tiempo/riesgo
+- [ ] Primeras notificaciones de evento (autorresueltas)
 
 ---
 

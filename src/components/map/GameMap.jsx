@@ -9,14 +9,16 @@ import mapConfig from '../../config/map_config.json';
 import districtsConfig from '../../config/districts_config.json';
 import routesConfig from '../../config/trade_routes_config.json';
 import { polygonToLatLngs } from '../../utils/geoUtils.js';
+import { buildLinkGraph } from '../../engines/trade/logisticsEngine.js';
 
 const getType = (id) => districtsConfig.districtTypes.find((t) => t.id === id);
 
-// Emoji divIcon for district main buildings
-function emojiIcon(emoji, selected) {
+// Emoji divIcon for district main buildings. `ready` adds a pulse badge
+// when the district has goods waiting to be collected.
+function emojiIcon(emoji, selected, ready) {
   return L.divIcon({
     className: 'district-emoji-icon',
-    html: `<div class="emoji-marker ${selected ? 'selected' : ''}">${emoji}</div>`,
+    html: `<div class="emoji-marker ${selected ? 'selected' : ''}">${emoji}${ready ? '<span class="ready-badge">📦</span>' : ''}</div>`,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
   });
@@ -53,6 +55,38 @@ export default function GameMap() {
 
       <PlacementHandler />
 
+      {/* ── Logistics layer: road links between nearby districts ── */}
+      {layers.logistics && (() => {
+        const graph = buildLinkGraph(state.districts);
+        const byId = new Map(state.districts.map((d) => [d.id, d]));
+        const drawn = new Set();
+        const lines = [];
+        state.districts.forEach((d) => {
+          (graph.get(d.id) || new Set()).forEach((nid) => {
+            const key = [d.id, nid].sort().join('|');
+            if (drawn.has(key)) return;
+            drawn.add(key);
+            const n = byId.get(nid);
+            if (!n) return;
+            // Highlight links that involve a road (camino) — those carry goods
+            const isRoad = d.type === 'camino' || n.type === 'camino' || d.type === 'puerto' || n.type === 'puerto';
+            lines.push(
+              <Polyline
+                key={`lk_${key}`}
+                positions={[d.mainBuildingPoint, n.mainBuildingPoint]}
+                pathOptions={{
+                  color: isRoad ? '#c9a227' : '#888',
+                  weight: isRoad ? 3 : 1.5,
+                  opacity: isRoad ? 0.8 : 0.4,
+                  dashArray: isRoad ? null : '4 6',
+                }}
+              />
+            );
+          });
+        });
+        return lines;
+      })()}
+
       {/* ── District polygons ── */}
       {layers.districts && state.districts.map((d) => {
         const type = getType(d.type);
@@ -86,11 +120,12 @@ export default function GameMap() {
       {layers.buildings && state.districts.map((d) => {
         const type = getType(d.type);
         const selected = state.ui.selectedDistrictId === d.id;
+        const ready = d.buffer && Object.values(d.buffer).some((v) => v > 0);
         return (
           <Marker
             key={`m_${d.id}`}
             position={d.mainBuildingPoint}
-            icon={emojiIcon(type?.emoji || '🏠', selected)}
+            icon={emojiIcon(type?.emoji || '🏠', selected, ready)}
             eventHandlers={{ click: () => dispatch({ type: 'SELECT_DISTRICT', id: d.id }) }}
           />
         );

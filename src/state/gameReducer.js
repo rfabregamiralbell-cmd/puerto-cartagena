@@ -10,6 +10,7 @@ import {
 } from '../utils/geoUtils.js';
 import { validateTerrainForType } from '../utils/visualWaterValidator.js';
 import { TerrainDefenseEngine } from '../engines/defense/terrainDefenseEngine.js';
+import { isConnectedToPort, adjacencySynergy } from '../engines/trade/logisticsEngine.js';
 
 const getType = (id) => districtsConfig.districtTypes.find((t) => t.id === id);
 const getShipConfig = (id) => shipsConfig.ships.find((s) => s.id === id);
@@ -66,6 +67,32 @@ function addXP(state, amount) {
     notify(state, 'levelup', `¡Ciudad ascendida a Nivel ${state.port.level}!`, 4000);
   }
 }
+
+// Recompute resource maximums: baseMax + sum of Almacén storageBonus * level.
+function recalcStorage(state) {
+  const bonus = {};
+  state.districts.forEach((d) => {
+    const type = getType(d.type);
+    if (!type?.storageBonus) return;
+    Object.entries(type.storageBonus).forEach(([r, v]) => {
+      bonus[r] = (bonus[r] || 0) + v * d.level;
+    });
+  });
+  const resources = { ...state.resources };
+  Object.keys(resources).forEach((r) => {
+    const base = resources[r].baseMax ?? resources[r].max;
+    const newMax = base + (bonus[r] || 0);
+    resources[r] = {
+      ...resources[r],
+      max: newMax,
+      amount: Math.min(resources[r].amount, newMax),
+    };
+  });
+  state.resources = resources;
+}
+
+// Per-district production buffer cap (semi-active economy).
+const BUFFER_CAP_PER_LEVEL = 10;
 
 export function gameReducer(state, action) {
   // Work on a shallow clone; nested arrays reassigned where mutated
@@ -149,6 +176,8 @@ export function gameReducer(state, action) {
         constructionStartedAt: Date.now(),
         constructionEndsAt: Date.now(),
         lastProductionAt: Date.now(),
+        buffer: {},        // accumulated, uncollected production (semi-active)
+        connected: false,  // recomputed on tick: reaches a Puerto via roads
         cost: type.cost,
       };
 
@@ -160,6 +189,7 @@ export function gameReducer(state, action) {
       s.districts = [...s.districts, district];
       s.ui = { ...s.ui, placementMode: null, placementPreview: null };
       addXP(s, 10);
+      recalcStorage(s);
       recalcDefense(s);
       notify(s, 'success', `${type.emoji} ${type.name} construido.`);
       return s;
@@ -183,6 +213,7 @@ export function gameReducer(state, action) {
       s.resources = resources;
       s.districts = s.districts.map((x) => x.id === d.id ? { ...x, level: x.level + 1 } : x);
       addXP(s, 15);
+      recalcStorage(s);
       recalcDefense(s);
       notify(s, 'success', `${type.name} mejorado a nivel ${d.level + 1}.`);
       return s;
@@ -199,6 +230,7 @@ export function gameReducer(state, action) {
       s.resources = resources;
       s.districts = s.districts.filter((x) => x.id !== d.id);
       s.ui = { ...s.ui, selectedDistrictId: null, openSheet: null };
+      recalcStorage(s);
       recalcDefense(s);
       notify(s, 'info', 'Distrito demolido.');
       return s;
@@ -258,31 +290,67 @@ export function gameReducer(state, action) {
       return s;
     }
 
-    // ── Economy tick ────────────────────────────────────────
+    // ── Economy tick (semi-active) ──────────────────────────
     case 'TICK': {
       const now = action.now;
       s.tick = s.tick + 1;
-      const resources = { ...s.resources };
-      let produced = false;
-      s.districts.forEach((d) => {
+      let changed = false;
+
+      const districts = s.districts.map((d) => {
         const type = getType(d.type);
-        if (!type?.production || !type.productionInterval) return;
-        if (now - (d.lastProductionAt || 0) >= type.productionInterval) {
-          Object.entries(type.production).forEach(([r, v]) => {
-            if (resources[r]) {
-              resources[r] = { ...resources[r], amount: Math.min(resources[r].amount + v * d.level, resources[r].max) };
-            }
-          });
-          d.lastProductionAt = now;
-          produced = true;
-        }
+        if (!type?.production || !type.productionInterval) return d;
+        if (now - (d.lastProductionAt || 0) < type.productionInterval) return d;
+
+        // Connectivity: producers must reach a Puerto via roads to deliver.
+        const connected = isConnectedToPort(d, s.districts);
+        const synergy = adjacencySynergy(d, s.districts);
+        const cap = (d.workersRequired ? 1 : 1) * BUFFER_CAP_PER_LEVEL * d.level;
+
+        const buffer = { ...(d.buffer || {}) };
+        Object.entries(type.production).forEach(([r, v]) => {
+          const amount = Math.round(v * d.level * synergy);
+          buffer[r] = Math.min((buffer[r] || 0) + amount, cap);
+        });
+        changed = true;
+        return { ...d, buffer, connected, lastProductionAt: now };
       });
-      if (produced) { s.resources = resources; addXP(s, 1); }
+
+      if (changed) { s.districts = districts; addXP(s, 1); }
+
       // expire notifications
       s.notifications = s.notifications.filter((n) => {
         if (!n._shownAt) n._shownAt = now;
         return now - n._shownAt < (n.duration || 3500);
       });
+      return s;
+    }
+
+    // ── Collect a district's accumulated buffer into global storage ──
+    case 'COLLECT_DISTRICT': {
+      const d = s.districts.find((x) => x.id === action.id);
+      if (!d || !d.buffer || !Object.keys(d.buffer).length) return s;
+
+      if (!isConnectedToPort(d, s.districts)) {
+        notify(s, 'warning', `${d.name} no está conectado al Puerto por un Camino. Las mercancías no pueden salir.`);
+        return s;
+      }
+
+      const resources = { ...s.resources };
+      let collectedAny = false;
+      Object.entries(d.buffer).forEach(([r, v]) => {
+        if (resources[r]) {
+          const room = resources[r].max - resources[r].amount;
+          const moved = Math.min(v, room);
+          if (moved > 0) {
+            resources[r] = { ...resources[r], amount: resources[r].amount + moved };
+            collectedAny = true;
+          }
+        }
+      });
+      s.resources = resources;
+      s.districts = s.districts.map((x) => x.id === d.id ? { ...x, buffer: {} } : x);
+      if (collectedAny) notify(s, 'success', `Mercancías recogidas de ${d.name}.`);
+      else notify(s, 'warning', 'Almacenes llenos. Amplía un Almacén.');
       return s;
     }
 
@@ -292,7 +360,19 @@ export function gameReducer(state, action) {
     }
 
     case 'LOAD_STATE': {
-      return { ...action.state };
+      const loaded = { ...action.state };
+      // Migrate older saves: ensure baseMax + district buffer exist.
+      if (loaded.resources) {
+        Object.keys(loaded.resources).forEach((r) => {
+          if (loaded.resources[r].baseMax == null) {
+            loaded.resources[r] = { ...loaded.resources[r], baseMax: loaded.resources[r].max };
+          }
+        });
+      }
+      if (Array.isArray(loaded.districts)) {
+        loaded.districts = loaded.districts.map((d) => ({ buffer: {}, connected: false, ...d }));
+      }
+      return loaded;
     }
 
     default:

@@ -11,7 +11,7 @@ const LAYERS = [
   { key: 'terrainDefense', icon: '🏰', label: 'Defensa del terreno', desc: 'Radio de cobertura de fortalezas' },
   { key: 'tradeRoutes', icon: '⛵', label: 'Rutas comerciales', desc: 'Líneas de comercio naval' },
   { key: 'influence', icon: '✨', label: 'Influencia', desc: '(Próximamente)' },
-  { key: 'logistics', icon: '🛣️', label: 'Logística', desc: '(Próximamente)' },
+  { key: 'logistics', icon: '🛣️', label: 'Logística', desc: 'Caminos y conexiones entre distritos y el puerto' },
   { key: 'combat', icon: '⚔️', label: 'Combate', desc: '(Próximamente)' },
 ];
 

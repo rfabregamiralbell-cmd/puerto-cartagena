@@ -19,13 +19,13 @@ export function createInitialState() {
     },
 
     resources: {
-      oro:        { amount: 200, max: 999, icon: '🪙', label: 'Oro' },
-      madera:     { amount: 80,  max: 200, icon: '🪵', label: 'Madera' },
-      piedra:     { amount: 60,  max: 200, icon: '🪨', label: 'Piedra' },
-      velas:      { amount: 15,  max: 50,  icon: '⛵', label: 'Velas' },
-      cañones:    { amount: 4,   max: 20,  icon: '💣', label: 'Cañones' },
-      polvora:    { amount: 10,  max: 60,  icon: '💥', label: 'Pólvora' },
-      tripulacion:{ amount: 20,  max: 100, icon: '👨‍✈️', label: 'Tripulación' },
+      oro:        { amount: 200, max: 999, baseMax: 999, icon: '🪙', label: 'Oro' },
+      madera:     { amount: 80,  max: 200, baseMax: 200, icon: '🪵', label: 'Madera' },
+      piedra:     { amount: 60,  max: 200, baseMax: 200, icon: '🪨', label: 'Piedra' },
+      velas:      { amount: 15,  max: 50,  baseMax: 50,  icon: '⛵', label: 'Velas' },
+      cañones:    { amount: 4,   max: 20,  baseMax: 20,  icon: '💣', label: 'Cañones' },
+      polvora:    { amount: 10,  max: 60,  baseMax: 60,  icon: '💥', label: 'Pólvora' },
+      tripulacion:{ amount: 20,  max: 100, baseMax: 100, icon: '👨‍✈️', label: 'Tripulación' },
     },
 
     // Districts: GeoJSON-backed entities placed on the real map

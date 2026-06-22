@@ -199,3 +199,65 @@ describe('unknown action', () => {
     expect(gameReducer(s, { type: 'NOPE' })).toBe(s);
   });
 });
+
+// ── Phase A: semi-active economy, storage caps, collection ──
+describe('storage caps (Almacén)', () => {
+  it('raises a resource max when an Almacén is built', () => {
+    let s = place(fresh(), 'almacen', INLAND);
+    s = gameReducer(s, { type: 'CONFIRM_PLACEMENT' });
+    expect(s.resources.madera.max).toBe(250); // 200 base + 50 bonus
+  });
+
+  it('restores the cap when the Almacén is demolished', () => {
+    let s = place(fresh(), 'almacen', INLAND);
+    s = gameReducer(s, { type: 'CONFIRM_PLACEMENT' });
+    const id = s.districts[0].id;
+    s = gameReducer(s, { type: 'DEMOLISH_DISTRICT', id });
+    expect(s.resources.madera.max).toBe(200);
+  });
+});
+
+describe('semi-active production', () => {
+  it('fills a district buffer instead of resources directly', () => {
+    let s = place(fresh(), 'cabildo', INLAND);
+    s = gameReducer(s, { type: 'CONFIRM_PLACEMENT' });
+    const goldBefore = s.resources.oro.amount;
+    s.districts[0].lastProductionAt = 0;
+    s = gameReducer(s, { type: 'TICK', now: Date.now() });
+    expect(s.resources.oro.amount).toBe(goldBefore);   // not added yet
+    expect(s.districts[0].buffer.oro).toBeGreaterThan(0); // accumulated
+  });
+
+  it('caps the buffer', () => {
+    let s = place(fresh(), 'cabildo', INLAND);
+    s = gameReducer(s, { type: 'CONFIRM_PLACEMENT' });
+    for (let i = 0; i < 60; i++) {
+      s.districts[0].lastProductionAt = 0;
+      s = gameReducer(s, { type: 'TICK', now: Date.now() + i });
+    }
+    expect(s.districts[0].buffer.oro).toBeLessThanOrEqual(10); // cap = 10 * level
+  });
+});
+
+describe('collection requires a port connection', () => {
+  it('blocks collection when not connected to a Puerto', () => {
+    let s = place(fresh(), 'cabildo', INLAND);
+    s = gameReducer(s, { type: 'CONFIRM_PLACEMENT' });
+    s.districts[0].lastProductionAt = 0;
+    s = gameReducer(s, { type: 'TICK', now: Date.now() });
+    const before = s.resources.oro.amount;
+    s = gameReducer(s, { type: 'COLLECT_DISTRICT', id: s.districts[0].id });
+    expect(s.resources.oro.amount).toBe(before); // blocked, no port nearby
+  });
+});
+
+describe('LOAD_STATE migration', () => {
+  it('adds baseMax and buffer fields to old saves', () => {
+    const old = createInitialState();
+    delete old.resources.oro.baseMax;
+    old.districts = [{ id: 'x', type: 'cabildo', level: 1, mainBuildingPoint: INLAND }];
+    const s = gameReducer(fresh(), { type: 'LOAD_STATE', state: old });
+    expect(s.resources.oro.baseMax).not.toBeNull();
+    expect(s.districts[0].buffer).toBeDefined();
+  });
+});
