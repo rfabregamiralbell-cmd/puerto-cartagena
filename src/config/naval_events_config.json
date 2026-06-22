@@ -1,0 +1,73 @@
+{
+  "events": [
+    {
+      "id": "pirate_raid",
+      "type": "pirate",
+      "name": "¡Ataque Pirata!",
+      "description": "Una flota pirata intercepta tu convoy en alta mar.",
+      "triggerCondition": "onRoute",
+      "riskThreshold": "low",
+      "outcomes": [
+        { "result": "victory", "weight": 60, "goldMod": 0, "hullDmg": 5 },
+        { "result": "minorDamage", "weight": 25, "goldMod": -0.2, "hullDmg": 20 },
+        { "result": "cargoLost", "weight": 10, "goldMod": -0.5, "hullDmg": 10 },
+        { "result": "shipLost", "weight": 5, "goldMod": -1.0, "hullDmg": 100 }
+      ]
+    },
+    {
+      "id": "storm",
+      "type": "weather",
+      "name": "Tormenta Tropical",
+      "description": "Una violenta tormenta azota el Caribe.",
+      "triggerCondition": "onRoute",
+      "riskThreshold": "low",
+      "outcomes": [
+        { "result": "victory", "weight": 50, "goldMod": 0, "hullDmg": 0 },
+        { "result": "minorDamage", "weight": 35, "goldMod": 0, "hullDmg": 15 },
+        { "result": "majorDamage", "weight": 12, "goldMod": -0.1, "hullDmg": 40 },
+        { "result": "shipLost", "weight": 3, "goldMod": -1.0, "hullDmg": 100 }
+      ]
+    },
+    {
+      "id": "enemy_fleet",
+      "type": "military",
+      "name": "Flota Enemiga",
+      "description": "Una escuadra de guerra bloquea la ruta comercial.",
+      "triggerCondition": "onHighRiskRoute",
+      "riskThreshold": "high",
+      "outcomes": [
+        { "result": "routeBlocked", "weight": 40, "goldMod": 0, "hullDmg": 0 },
+        { "result": "minorDamage", "weight": 30, "goldMod": -0.3, "hullDmg": 30 },
+        { "result": "majorDamage", "weight": 20, "goldMod": -0.6, "hullDmg": 60 },
+        { "result": "shipLost", "weight": 10, "goldMod": -1.0, "hullDmg": 100 }
+      ]
+    },
+    {
+      "id": "merchant_opportunity",
+      "type": "positive",
+      "name": "Mercado Favorable",
+      "description": "Los precios están al alza en el puerto destino.",
+      "triggerCondition": "onRoute",
+      "riskThreshold": "low",
+      "outcomes": [
+        { "result": "bonusProfit", "weight": 100, "goldMod": 0.5, "hullDmg": 0 }
+      ]
+    }
+  ],
+  "portEvents": [
+    {
+      "id": "port_raid",
+      "type": "pirate",
+      "name": "¡Raid al Puerto!",
+      "description": "Piratas atacan directamente el puerto.",
+      "defenseRequired": 20
+    },
+    {
+      "id": "fire",
+      "type": "disaster",
+      "name": "Incendio en el Almacén",
+      "description": "Un incendio destruye parte de tus reservas.",
+      "defenseRequired": 0
+    }
+  ]
+}

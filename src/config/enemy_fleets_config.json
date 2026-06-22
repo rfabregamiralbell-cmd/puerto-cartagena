@@ -1,0 +1,48 @@
+{
+  "enemyFleets": [
+    {
+      "id": "pirate_sloop",
+      "name": "Corsario Ligero",
+      "type": "pirate",
+      "emoji": "🏴‍☠️",
+      "threat": 10,
+      "ships": 1,
+      "stats": { "attack": 8, "defense": 4, "hull": 20 },
+      "reward": { "oro": 30 },
+      "riskLevel": "low"
+    },
+    {
+      "id": "pirate_squadron",
+      "name": "Escuadrón Pirata",
+      "type": "pirate",
+      "emoji": "☠️",
+      "threat": 30,
+      "ships": 3,
+      "stats": { "attack": 20, "defense": 12, "hull": 60 },
+      "reward": { "oro": 80 },
+      "riskLevel": "medium"
+    },
+    {
+      "id": "enemy_warfleet",
+      "name": "Flota de Guerra Enemiga",
+      "type": "military",
+      "emoji": "⚔️",
+      "threat": 70,
+      "ships": 5,
+      "stats": { "attack": 45, "defense": 35, "hull": 150 },
+      "reward": { "oro": 200 },
+      "riskLevel": "high"
+    },
+    {
+      "id": "smuggler",
+      "name": "Contrabandistas",
+      "type": "smuggler",
+      "emoji": "🎭",
+      "threat": 5,
+      "ships": 1,
+      "stats": { "attack": 4, "defense": 2, "hull": 15 },
+      "reward": { "oro": 15, "madera": 10 },
+      "riskLevel": "low"
+    }
+  ]
+}

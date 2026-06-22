@@ -1,0 +1,36 @@
+{
+  "portDefense": {
+    "baseDefenseScore": 5,
+    "maxDefenseScore": 100,
+    "components": {
+      "fortaleza": { "baseBonus": 25, "perLevel": 10 },
+      "arsenal": { "baseBonus": 10, "perLevel": 5 },
+      "cañones": { "bonusPer10": 5 },
+      "polvora": { "bonusPer20": 3 },
+      "navalPatrol": { "bonusPerShip": 8 },
+      "captainBonus": { "bonusPerStar": 3 }
+    },
+    "threats": {
+      "pirateRaid": {
+        "minDefenseToRepel": 15,
+        "goldLostIfFail": 0.25,
+        "resourceLostIfFail": 0.15
+      },
+      "enemyNavalAttack": {
+        "minDefenseToRepel": 40,
+        "goldLostIfFail": 0.5,
+        "buildingDamageRisk": true
+      },
+      "blockade": {
+        "minDefenseToBreak": 60,
+        "routeDisruptionDays": 3
+      }
+    },
+    "coastalCoverageRadius": {
+      "noFortaleza": 0,
+      "fortalezaLevel1": 150,
+      "fortalezaLevel2": 250,
+      "fortalezaLevel3": 400
+    }
+  }
+}

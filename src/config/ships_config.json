@@ -1,0 +1,98 @@
+{
+  "ships": [
+    {
+      "id": "merchant_small",
+      "type": "merchant",
+      "name": "Bergantín Mercante",
+      "emoji": "⛵",
+      "description": "Barco pequeño ideal para rutas cortas. Bajo riesgo, bajo beneficio.",
+      "requiredAstilleroLevel": 1,
+      "cost": { "oro": 80, "madera": 40, "velas": 10 },
+      "buildTime": 15000,
+      "stats": {
+        "hull": 30,
+        "maxHull": 30,
+        "speed": 1.2,
+        "cargoCapacity": 20,
+        "attack": 2,
+        "defense": 5,
+        "crewRequired": 5,
+        "cannonsRequired": 2
+      },
+      "color": "#8B4513",
+      "size": 18
+    },
+    {
+      "id": "brig",
+      "type": "combat_merchant",
+      "name": "Bergantín de Guerra",
+      "emoji": "🚢",
+      "description": "Equilibrio entre comercio y combate. Versátil en el Caribe.",
+      "requiredAstilleroLevel": 2,
+      "cost": { "oro": 150, "madera": 70, "velas": 20, "cañones": 4 },
+      "buildTime": 25000,
+      "stats": {
+        "hull": 60,
+        "maxHull": 60,
+        "speed": 1.0,
+        "cargoCapacity": 35,
+        "attack": 10,
+        "defense": 12,
+        "crewRequired": 12,
+        "cannonsRequired": 8
+      },
+      "color": "#5C3317",
+      "size": 22
+    },
+    {
+      "id": "frigate",
+      "type": "warship",
+      "name": "Fragata",
+      "emoji": "⚔️",
+      "description": "Barco de guerra rápido. Ideal para escolta de convoyes.",
+      "requiredAstilleroLevel": 3,
+      "cost": { "oro": 300, "madera": 120, "velas": 35, "cañones": 12, "polvora": 20 },
+      "buildTime": 45000,
+      "stats": {
+        "hull": 100,
+        "maxHull": 100,
+        "speed": 1.4,
+        "cargoCapacity": 20,
+        "attack": 25,
+        "defense": 20,
+        "crewRequired": 30,
+        "cannonsRequired": 20
+      },
+      "color": "#2F4F4F",
+      "size": 26
+    },
+    {
+      "id": "galleon",
+      "type": "transport",
+      "name": "Galeón",
+      "emoji": "🏴‍☠️",
+      "description": "El rey del comercio. Capacidad máxima, ideal para rutas a Sevilla.",
+      "requiredAstilleroLevel": 3,
+      "cost": { "oro": 500, "madera": 200, "velas": 60, "cañones": 8, "polvora": 15 },
+      "buildTime": 60000,
+      "stats": {
+        "hull": 150,
+        "maxHull": 150,
+        "speed": 0.7,
+        "cargoCapacity": 100,
+        "attack": 15,
+        "defense": 18,
+        "crewRequired": 50,
+        "cannonsRequired": 16
+      },
+      "color": "#8B0000",
+      "size": 30
+    }
+  ],
+  "shipStatuses": ["idle", "underConstruction", "assignedToRoute", "escortingConvoy", "repairing", "inCombat", "damaged", "sunk"],
+  "upgrades": [
+    { "id": "reinforced_hull", "name": "Casco reforzado", "cost": { "oro": 50, "madera": 20 }, "effect": { "hull": 20, "maxHull": 20 } },
+    { "id": "extra_sails", "name": "Velas adicionales", "cost": { "oro": 40, "velas": 10 }, "effect": { "speed": 0.2 } },
+    { "id": "bronze_cannons", "name": "Cañones de bronce", "cost": { "oro": 80, "cañones": 4 }, "effect": { "attack": 10 } }
+  ]
+}

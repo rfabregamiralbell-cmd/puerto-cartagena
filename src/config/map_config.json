@@ -1,0 +1,44 @@
+{
+  "center": [10.4236, -75.5378],
+  "defaultZoom": 14,
+  "minZoom": 12,
+  "maxZoom": 18,
+  "tileLayer": {
+    "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    "attribution": "&copy; OpenStreetMap contributors"
+  },
+  "cabildoStart": [10.4236, -75.5378],
+  "portStart": [10.4015, -75.5490],
+  "_comment_waterZones": "Simplified polygons approximating the bays/sea around Cartagena. Used by visualWaterValidator as a fallback. Coords are [lat, lng].",
+  "waterZones": [
+    {
+      "name": "Mar Caribe (oeste)",
+      "polygon": [
+        [10.46, -75.58],
+        [10.46, -75.55],
+        [10.36, -75.56],
+        [10.36, -75.60],
+        [10.46, -75.60]
+      ]
+    },
+    {
+      "name": "Bahía de Cartagena (sur)",
+      "polygon": [
+        [10.40, -75.55],
+        [10.40, -75.51],
+        [10.34, -75.51],
+        [10.34, -75.55]
+      ]
+    }
+  ],
+  "_comment_elevation": "Simplified high-ground points for the LiDAR-style terrain model (La Popa hill, San Felipe). Higher = better line of sight.",
+  "highGround": [
+    { "name": "Cerro de la Popa", "coord": [10.4275, -75.5280], "elevation": 0.95, "radius": 0.012 },
+    { "name": "Castillo San Felipe", "coord": [10.4225, -75.5390], "elevation": 0.75, "radius": 0.008 }
+  ],
+  "_comment_chokepoints": "Strategic naval approaches (Bocagrande, Bocachica) with high defensive value.",
+  "chokepoints": [
+    { "name": "Bocagrande", "coord": [10.4000, -75.5650], "value": 0.85, "radius": 0.010 },
+    { "name": "Bocachica", "coord": [10.3200, -75.5800], "value": 0.90, "radius": 0.010 }
+  ]
+}
