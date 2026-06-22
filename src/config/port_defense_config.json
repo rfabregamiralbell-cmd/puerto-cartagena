@@ -5,7 +5,7 @@
     "components": {
       "fortaleza": { "baseBonus": 25, "perLevel": 10 },
       "arsenal": { "baseBonus": 10, "perLevel": 5 },
-      "cañones": { "bonusPer10": 5 },
+      "canones": { "bonusPer10": 5 },
       "polvora": { "bonusPer20": 3 },
       "navalPatrol": { "bonusPerShip": 8 },
       "captainBonus": { "bonusPerStar": 3 }

@@ -82,7 +82,12 @@ export default function DistrictPanel() {
       <div className="row"><span className="muted">Nivel</span><span>{d.level} / {type.maxLevel}</span></div>
       <div className="row"><span className="muted">Estado</span><span>{d.status}</span></div>
       <div className="row"><span className="muted">Área</span><span>{d.areaM2.toLocaleString()} m²</span></div>
-      <div className="row"><span className="muted">Trabajadores</span><span>{d.assignedWorkers}/{d.workersRequired}</span></div>
+      <div className="row"><span className="muted">Trabajadores</span><span className={d.assignedWorkers < d.workersRequired ? 'warn' : 'good'}>{d.assignedWorkers}/{d.workersRequired}</span></div>
+      {d.workersRequired > 0 && d.assignedWorkers < d.workersRequired && (
+        <p className="muted small" style={{ color: '#ffd080' }}>
+          Falta personal: la producción rinde al {Math.round((d.assignedWorkers / d.workersRequired) * 100)}%.
+        </p>
+      )}
       <div className="row"><span className="muted">Producción</span><span className="good">{production}</span></div>
       {d.type === 'fortaleza' && d.defensiveValue != null && (
         <>

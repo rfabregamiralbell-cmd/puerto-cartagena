@@ -29,12 +29,12 @@ export const PortDefenseEngine = {
   // ── Component calculators ────────────────────────────────
 
   _calcArtillery() {
-    const cañones = GameState.resources.cañones.amount;
+    const canones = GameState.resources.canones.amount;
     const polvora = GameState.resources.polvora.amount;
     const hasArsenal = GameState.buildings.some(b => b.buildingId === 'arsenal');
     const arsenalLevel = this._getBuildingLevel('arsenal');
 
-    let power = Math.floor(cañones * 0.5) + Math.floor(polvora * 0.2);
+    let power = Math.floor(canones * 0.5) + Math.floor(polvora * 0.2);
     if (hasArsenal) power += arsenalLevel * 5;
     return Math.min(power, 40);
   },
@@ -61,9 +61,9 @@ export const PortDefenseEngine = {
 
   _calcSupplyReadiness() {
     const polvora  = GameState.resources.polvora.amount;
-    const cañones  = GameState.resources.cañones.amount;
+    const canones  = GameState.resources.canones.amount;
     const hasAlmacen = GameState.buildings.some(b => b.buildingId === 'almacen');
-    let score = Math.min(polvora * 0.5 + cañones * 1, 20);
+    let score = Math.min(polvora * 0.5 + canones * 1, 20);
     if (hasAlmacen) score *= 1.2;
     return Math.round(Math.min(score, 20));
   },

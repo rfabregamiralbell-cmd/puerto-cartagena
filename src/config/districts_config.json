@@ -12,10 +12,15 @@
       "minAreaM2": 2000,
       "maxAreaM2": 8000,
       "workersRequired": 4,
-      "cost": { "oro": 0 },
-      "production": { "oro": 2 },
+      "cost": {
+        "oro": 0
+      },
+      "production": {
+        "oro": 2
+      },
       "productionInterval": 5000,
-      "color": "#c9a227"
+      "color": "#c9a227",
+      "shape": "compact"
     },
     {
       "id": "puerto",
@@ -29,10 +34,16 @@
       "minAreaM2": 3000,
       "maxAreaM2": 12000,
       "workersRequired": 6,
-      "cost": { "oro": 80, "madera": 30 },
-      "production": { "oro": 3 },
+      "cost": {
+        "oro": 80,
+        "madera": 30
+      },
+      "production": {
+        "oro": 3
+      },
       "productionInterval": 6000,
-      "color": "#1a6b8a"
+      "color": "#1a6b8a",
+      "shape": "elongated"
     },
     {
       "id": "almacen",
@@ -46,9 +57,22 @@
       "minAreaM2": 1500,
       "maxAreaM2": 6000,
       "workersRequired": 3,
-      "cost": { "oro": 50, "madera": 20 },
-      "storageBonus": { "madera": 50, "velas": 20, "polvora": 20 },
-      "color": "#8B6914"
+      "cost": {
+        "oro": 50,
+        "madera": 20
+      },
+      "storageBonus": {
+        "madera": 50,
+        "velas": 20,
+        "polvora": 20,
+        "cacao": 40,
+        "tabaco": 40,
+        "azucar": 40,
+        "cuero": 40,
+        "tejidos": 40
+      },
+      "color": "#8B6914",
+      "shape": "compact"
     },
     {
       "id": "hacienda",
@@ -62,10 +86,18 @@
       "minAreaM2": 4000,
       "maxAreaM2": 20000,
       "workersRequired": 8,
-      "cost": { "oro": 60, "madera": 15 },
-      "production": { "madera": 3 },
+      "cost": {
+        "oro": 60,
+        "madera": 15
+      },
+      "production": {
+        "cacao": 2,
+        "tabaco": 1,
+        "madera": 1
+      },
       "productionInterval": 7000,
-      "color": "#6b8e23"
+      "color": "#6b8e23",
+      "shape": "organic"
     },
     {
       "id": "gremio",
@@ -80,10 +112,17 @@
       "minAreaM2": 1500,
       "maxAreaM2": 5000,
       "workersRequired": 5,
-      "cost": { "oro": 90, "madera": 40 },
-      "production": { "velas": 2 },
+      "cost": {
+        "oro": 90,
+        "madera": 40
+      },
+      "production": {
+        "tejidos": 2,
+        "velas": 1
+      },
       "productionInterval": 9000,
-      "color": "#8a5a2b"
+      "color": "#8a5a2b",
+      "shape": "compact"
     },
     {
       "id": "aduana",
@@ -98,16 +137,23 @@
       "minAreaM2": 1500,
       "maxAreaM2": 5000,
       "workersRequired": 4,
-      "cost": { "oro": 150, "madera": 30, "piedra": 40 },
-      "production": { "oro": 6 },
+      "cost": {
+        "oro": 150,
+        "madera": 30,
+        "piedra": 40
+      },
+      "production": {
+        "oro": 6
+      },
       "productionInterval": 8000,
-      "color": "#B8860B"
+      "color": "#B8860B",
+      "shape": "compact"
     },
     {
       "id": "arsenal",
       "name": "Arsenal",
       "emoji": "🛠️",
-      "description": "Produce cañones y pólvora. Mejor cerca del puerto.",
+      "description": "Produce canones y pólvora. Mejor cerca del puerto.",
       "terrain": "coast_near",
       "unique": true,
       "unlocked": false,
@@ -116,10 +162,18 @@
       "minAreaM2": 2000,
       "maxAreaM2": 6000,
       "workersRequired": 6,
-      "cost": { "oro": 200, "madera": 60, "piedra": 50 },
-      "production": { "cañones": 1, "polvora": 2 },
+      "cost": {
+        "oro": 200,
+        "madera": 60,
+        "piedra": 50
+      },
+      "production": {
+        "canones": 1,
+        "polvora": 2
+      },
       "productionInterval": 10000,
-      "color": "#4A4A4A"
+      "color": "#4A4A4A",
+      "shape": "compact"
     },
     {
       "id": "fortaleza",
@@ -134,9 +188,15 @@
       "minAreaM2": 2500,
       "maxAreaM2": 8000,
       "workersRequired": 5,
-      "cost": { "oro": 300, "piedra": 150, "cañones": 5, "polvora": 10 },
+      "cost": {
+        "oro": 300,
+        "piedra": 150,
+        "canones": 5,
+        "polvora": 10
+      },
       "defenseBonus": 25,
-      "color": "#696969"
+      "color": "#696969",
+      "shape": "defensive"
     },
     {
       "id": "camino",
@@ -151,9 +211,19 @@
       "minAreaM2": 500,
       "maxAreaM2": 3000,
       "workersRequired": 1,
-      "cost": { "oro": 20, "piedra": 10 },
-      "color": "#9c8866"
+      "cost": {
+        "oro": 20,
+        "piedra": 10
+      },
+      "color": "#9c8866",
+      "shape": "corridor"
     }
   ],
-  "districtStatuses": ["proposed", "underConstruction", "active", "damaged", "abandoned"]
+  "districtStatuses": [
+    "proposed",
+    "underConstruction",
+    "active",
+    "damaged",
+    "abandoned"
+  ]
 }

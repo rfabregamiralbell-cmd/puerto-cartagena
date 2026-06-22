@@ -47,7 +47,7 @@ export const ShipStatsEngine = {
 
     // Cannon effectiveness: can't use more cannons than ship has
     base.cannons = Math.min(
-      GameState.resources.cañones.amount,
+      GameState.resources.canones.amount,
       base.cannonsRequired
     );
 

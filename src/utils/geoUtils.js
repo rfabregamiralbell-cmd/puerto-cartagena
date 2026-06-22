@@ -19,6 +19,7 @@ export function distanceM([lat1, lng1], [lat2, lng2]) {
 
 /**
  * Generate a roughly-square district polygon centered on a point.
+ * Kept for backward-compatibility and as the 'compact' fallback shape.
  * @param {[number,number]} center [lat,lng]
  * @param {number} areaM2 desired area
  * @returns {GeoJSON Feature} polygon with [lng,lat] coords (GeoJSON order)
@@ -26,11 +27,8 @@ export function distanceM([lat1, lng1], [lat2, lng2]) {
 export function generateDistrictPolygon(center, areaM2 = 4000) {
   const [lat, lng] = center;
   const sideM = Math.sqrt(areaM2);
-  // meters → degrees (approx at this latitude)
   const dLat = (sideM / 2) / 111320;
   const dLng = (sideM / 2) / (111320 * Math.cos((lat * Math.PI) / 180));
-
-  // GeoJSON uses [lng, lat] and must be closed (first === last)
   const ring = [
     [lng - dLng, lat - dLat],
     [lng + dLng, lat - dLat],
@@ -38,12 +36,102 @@ export function generateDistrictPolygon(center, areaM2 = 4000) {
     [lng - dLng, lat + dLat],
     [lng - dLng, lat - dLat],
   ];
+  return { type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] }, properties: {} };
+}
 
+// Deterministic pseudo-random from a seed so previews are stable per point.
+function seeded(seed) {
+  let x = Math.sin(seed) * 10000;
+  return () => { x = Math.sin(x) * 10000; return x - Math.floor(x); };
+}
+
+function metersToDeg(lat) {
   return {
-    type: 'Feature',
-    geometry: { type: 'Polygon', coordinates: [ring] },
-    properties: {},
+    dLat: (m) => m / 111320,
+    dLng: (m) => m / (111320 * Math.cos((lat * Math.PI) / 180)),
   };
+}
+
+/**
+ * Build a polygon from a list of [offsetMetersX(east), offsetMetersY(north)]
+ * around a center, rotated by `angle` radians. Returns a closed GeoJSON ring.
+ */
+function polygonFromOffsets(center, offsets, angle = 0) {
+  const [lat, lng] = center;
+  const { dLat, dLng } = metersToDeg(lat);
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const ring = offsets.map(([ex, ny]) => {
+    const rx = ex * cos - ny * sin;
+    const ry = ex * sin + ny * cos;
+    return [lng + dLng(rx), lat + dLat(ry)];
+  });
+  ring.push(ring[0]); // close
+  return { type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] }, properties: {} };
+}
+
+/**
+ * Type-specific district autofill.
+ * @param {[number,number]} center [lat,lng]
+ * @param {string} shape  'compact'|'organic'|'elongated'|'defensive'|'corridor'
+ * @param {number} areaM2 target area
+ * @param {object} opts   { orientTo:[lat,lng] } point the shape should point toward
+ */
+export function generateDistrictShape(center, shape, areaM2 = 4000, opts = {}) {
+  const rnd = seeded((center[0] + center[1]) * 1000);
+
+  // Angle toward an optional target (for elongated/corridor orientation)
+  let angle = 0;
+  if (opts.orientTo) {
+    const dy = opts.orientTo[0] - center[0];
+    const dx = (opts.orientTo[1] - center[1]) * Math.cos((center[0] * Math.PI) / 180);
+    angle = Math.atan2(dy, dx);
+  }
+
+  switch (shape) {
+    case 'organic': {
+      // Large blob: many vertices with jittered radius
+      const r = Math.sqrt(areaM2 / Math.PI) * 1.15;
+      const n = 9;
+      const offs = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        const jitter = 0.65 + rnd() * 0.6;
+        offs.push([Math.cos(a) * r * jitter, Math.sin(a) * r * jitter]);
+      }
+      return polygonFromOffsets(center, offs);
+    }
+    case 'elongated': {
+      // Port: long along the orientation axis, narrow across
+      const long = Math.sqrt(areaM2) * 1.6;
+      const narrow = Math.sqrt(areaM2) * 0.5;
+      const hx = long / 2, hy = narrow / 2;
+      return polygonFromOffsets(center, [
+        [-hx, -hy], [hx, -hy], [hx, hy], [-hx, hy],
+      ], angle);
+    }
+    case 'defensive': {
+      // Fortaleza: pentagon (bastion-like)
+      const r = Math.sqrt(areaM2 / Math.PI) * 1.1;
+      const offs = [];
+      for (let i = 0; i < 5; i++) {
+        const a = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+        offs.push([Math.cos(a) * r, Math.sin(a) * r]);
+      }
+      return polygonFromOffsets(center, offs, angle);
+    }
+    case 'corridor': {
+      // Camino: thin long strip oriented toward target (a road, not a blob)
+      const length = Math.max(Math.sqrt(areaM2) * 3.5, 250);
+      const width = 28; // ~28m wide road
+      const hx = length / 2, hy = width / 2;
+      return polygonFromOffsets(center, [
+        [-hx, -hy], [hx, -hy], [hx, hy], [-hx, hy],
+      ], angle);
+    }
+    case 'compact':
+    default:
+      return generateDistrictPolygon(center, areaM2);
+  }
 }
 
 /** Convert a GeoJSON polygon Feature into Leaflet [lat,lng] positions. */

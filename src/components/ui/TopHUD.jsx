@@ -11,7 +11,7 @@ export default function TopHUD() {
   const res = state.resources;
 
   const primary = ['oro', 'madera'];
-  const secondary = ['piedra', 'velas', 'cañones', 'polvora', 'tripulacion'];
+  const secondary = ['piedra', 'velas', 'canones', 'polvora', 'tripulacion'];
   const shown = expanded ? [...primary, ...secondary] : primary;
 
   const xpPct = Math.min((state.port.xp / state.port.xpToNextLevel) * 100, 100);

@@ -29,7 +29,7 @@
       "emoji": "🚢",
       "description": "Equilibrio entre comercio y combate. Versátil en el Caribe.",
       "requiredAstilleroLevel": 2,
-      "cost": { "oro": 150, "madera": 70, "velas": 20, "cañones": 4 },
+      "cost": { "oro": 150, "madera": 70, "velas": 20, "canones": 4 },
       "buildTime": 25000,
       "stats": {
         "hull": 60,
@@ -51,7 +51,7 @@
       "emoji": "⚔️",
       "description": "Barco de guerra rápido. Ideal para escolta de convoyes.",
       "requiredAstilleroLevel": 3,
-      "cost": { "oro": 300, "madera": 120, "velas": 35, "cañones": 12, "polvora": 20 },
+      "cost": { "oro": 300, "madera": 120, "velas": 35, "canones": 12, "polvora": 20 },
       "buildTime": 45000,
       "stats": {
         "hull": 100,
@@ -73,7 +73,7 @@
       "emoji": "🏴‍☠️",
       "description": "El rey del comercio. Capacidad máxima, ideal para rutas a Sevilla.",
       "requiredAstilleroLevel": 3,
-      "cost": { "oro": 500, "madera": 200, "velas": 60, "cañones": 8, "polvora": 15 },
+      "cost": { "oro": 500, "madera": 200, "velas": 60, "canones": 8, "polvora": 15 },
       "buildTime": 60000,
       "stats": {
         "hull": 150,
@@ -93,6 +93,6 @@
   "upgrades": [
     { "id": "reinforced_hull", "name": "Casco reforzado", "cost": { "oro": 50, "madera": 20 }, "effect": { "hull": 20, "maxHull": 20 } },
     { "id": "extra_sails", "name": "Velas adicionales", "cost": { "oro": 40, "velas": 10 }, "effect": { "speed": 0.2 } },
-    { "id": "bronze_cannons", "name": "Cañones de bronce", "cost": { "oro": 80, "cañones": 4 }, "effect": { "attack": 10 } }
+    { "id": "bronze_cannons", "name": "Cañones de bronce", "cost": { "oro": 80, "canones": 4 }, "effect": { "attack": 10 } }
   ]
 }

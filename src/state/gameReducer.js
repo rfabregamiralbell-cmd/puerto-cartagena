@@ -5,8 +5,9 @@
 
 import districtsConfig from '../config/districts_config.json';
 import shipsConfig from '../config/ships_config.json';
+import mapConfig from '../config/map_config.json';
 import {
-  generateDistrictPolygon, polygonAreaM2, polygonCentroid, polygonsOverlap,
+  generateDistrictShape, polygonAreaM2, polygonCentroid, polygonsOverlap, distanceM,
 } from '../utils/geoUtils.js';
 import { validateTerrainForType } from '../utils/visualWaterValidator.js';
 import { TerrainDefenseEngine } from '../engines/defense/terrainDefenseEngine.js';
@@ -31,12 +32,51 @@ function cabildoLevel(state) {
   return cab.length ? Math.max(...cab.map((d) => d.level)) : 0;
 }
 
+// ── Workers (point 4) ──────────────────────────────────────
+// Labour pool grows with the city (Cabildo level). Districts draw from it.
+function totalWorkers(state) {
+  return 10 + cabildoLevel(state) * 8;
+}
+function assignedWorkersTotal(state) {
+  return state.districts.reduce((sum, d) => sum + (d.assignedWorkers || 0), 0);
+}
+function freeWorkers(state) {
+  return Math.max(0, totalWorkers(state) - assignedWorkersTotal(state));
+}
+// Staffing ratio drives production speed: fully staffed = 1, half = 0.5.
+function staffingRatio(d) {
+  if (!d.workersRequired) return 1;
+  return Math.min((d.assignedWorkers || 0) / d.workersRequired, 1);
+}
+
+// ── Orientation helpers for shape autofill ─────────────────
+function nearestWaterPoint(point) {
+  // Aim toward the closest water-zone vertex (cheap, good enough for orienting)
+  let best = null, min = Infinity;
+  (mapConfig.waterZones || []).forEach((z) => {
+    z.polygon.forEach((pt) => {
+      const dd = distanceM(point, pt);
+      if (dd < min) { min = dd; best = pt; }
+    });
+  });
+  return best || mapConfig.portStart;
+}
+function nearestDistrictPoint(state, point) {
+  let best = null, min = Infinity;
+  state.districts.forEach((d) => {
+    if (!d.mainBuildingPoint) return;
+    const dd = distanceM(point, d.mainBuildingPoint);
+    if (dd < min) { min = dd; best = d.mainBuildingPoint; }
+  });
+  return best;
+}
+
 function recalcDefense(state) {
   // Inline defense recompute. (The standalone PortDefenseEngine will be
   // refactored to a pure function and wired in during the combat phase.)
   const fort = state.districts.filter((d) => d.type === 'fortaleza');
   const arsenal = state.districts.filter((d) => d.type === 'arsenal');
-  const cannons = state.resources.cañones.amount;
+  const cannons = state.resources.canones.amount;
   const powder = state.resources.polvora.amount;
   const idleShips = state.ships.filter((s) => s.status === 'idle');
 
@@ -116,11 +156,20 @@ export function gameReducer(state, action) {
       const type = getType(s.ui.placementMode.typeId);
       if (!type) return s;
       const point = action.point; // [lat,lng]
-      const polygon = generateDistrictPolygon(point, type.minAreaM2 * 1.5);
+
+      // Orientation target: Puerto/Camino point toward the nearest relevant thing.
+      let orientTo = null;
+      if (type.shape === 'elongated') {
+        orientTo = nearestWaterPoint(point); // port stretches toward water
+      } else if (type.shape === 'corridor') {
+        orientTo = nearestDistrictPoint(s, point) || nearestWaterPoint(point);
+      }
+
+      const polygon = generateDistrictShape(point, type.shape || 'compact', type.minAreaM2 * 1.5, { orientTo });
       const area = polygonAreaM2(polygon);
 
-      // Validation chain
-      const terrainCheck = validateTerrainForType(point, type.terrain);
+      // Validation chain (pass polygon so Puerto can check it touches water)
+      const terrainCheck = validateTerrainForType(point, type.terrain, { polygon });
       const overlap = s.districts.some((d) => polygonsOverlap(polygon, d.polygon));
       const affordable = hasResources(s.resources, type.cost);
       const cabReq = type.requiredCabildoLevel ? cabildoLevel(s) >= type.requiredCabildoLevel : true;
@@ -161,6 +210,9 @@ export function gameReducer(state, action) {
       });
       s.resources = resources;
 
+      const free = freeWorkers(s);
+      const assigned = Math.min(type.workersRequired || 0, free);
+
       const district = {
         id: `d_${++s.districtCounter}`,
         type: type.id,
@@ -168,7 +220,7 @@ export function gameReducer(state, action) {
         polygon: preview.polygon,
         mainBuildingPoint: polygonCentroid(preview.polygon),
         areaM2: Math.round(preview.area),
-        assignedWorkers: 0,
+        assignedWorkers: assigned,
         workersRequired: type.workersRequired,
         level: 1,
         status: 'active',
@@ -191,7 +243,11 @@ export function gameReducer(state, action) {
       addXP(s, 10);
       recalcStorage(s);
       recalcDefense(s);
-      notify(s, 'success', `${type.emoji} ${type.name} construido.`);
+      if (type.workersRequired && assigned < type.workersRequired) {
+        notify(s, 'warning', `${type.name} construido pero con falta de trabajadores (${assigned}/${type.workersRequired}). Producción reducida.`);
+      } else {
+        notify(s, 'success', `${type.emoji} ${type.name} construido.`);
+      }
       return s;
     }
 
@@ -304,12 +360,13 @@ export function gameReducer(state, action) {
         // Connectivity: producers must reach a Puerto via roads to deliver.
         const connected = isConnectedToPort(d, s.districts);
         const synergy = adjacencySynergy(d, s.districts);
-        const cap = (d.workersRequired ? 1 : 1) * BUFFER_CAP_PER_LEVEL * d.level;
+        const staffing = staffingRatio(d);
+        const cap = BUFFER_CAP_PER_LEVEL * d.level;
 
         const buffer = { ...(d.buffer || {}) };
         Object.entries(type.production).forEach(([r, v]) => {
-          const amount = Math.round(v * d.level * synergy);
-          buffer[r] = Math.min((buffer[r] || 0) + amount, cap);
+          const amount = Math.round(v * d.level * synergy * staffing);
+          if (amount > 0) buffer[r] = Math.min((buffer[r] || 0) + amount, cap);
         });
         changed = true;
         return { ...d, buffer, connected, lastProductionAt: now };

@@ -18,14 +18,28 @@ export function createInitialState() {
       xpToNextLevel: 100,
     },
 
+    // Canonical resource keys are ASCII (no accents) so they match trade
+    // cargo keys exactly. Labels keep Spanish accents for display.
     resources: {
+      // Core / construction
       oro:        { amount: 200, max: 999, baseMax: 999, icon: '🪙', label: 'Oro' },
       madera:     { amount: 80,  max: 200, baseMax: 200, icon: '🪵', label: 'Madera' },
       piedra:     { amount: 60,  max: 200, baseMax: 200, icon: '🪨', label: 'Piedra' },
+      // Naval
       velas:      { amount: 15,  max: 50,  baseMax: 50,  icon: '⛵', label: 'Velas' },
-      cañones:    { amount: 4,   max: 20,  baseMax: 20,  icon: '💣', label: 'Cañones' },
+      canones:    { amount: 4,   max: 20,  baseMax: 20,  icon: '💣', label: 'Cañones' },
       polvora:    { amount: 10,  max: 60,  baseMax: 60,  icon: '💥', label: 'Pólvora' },
       tripulacion:{ amount: 20,  max: 100, baseMax: 100, icon: '👨‍✈️', label: 'Tripulación' },
+      // Tradeable goods (produced/exported; start at 0). Keys match trade cargo.
+      cacao:      { amount: 0,   max: 100, baseMax: 100, icon: '🍫', label: 'Cacao',  good: true },
+      tabaco:     { amount: 0,   max: 100, baseMax: 100, icon: '🍂', label: 'Tabaco', good: true },
+      azucar:     { amount: 0,   max: 100, baseMax: 100, icon: '🍯', label: 'Azúcar', good: true },
+      cuero:      { amount: 0,   max: 100, baseMax: 100, icon: '🟫', label: 'Cuero',  good: true },
+      anil:       { amount: 0,   max: 100, baseMax: 100, icon: '🔷', label: 'Añil',   good: true },
+      plata:      { amount: 0,   max: 100, baseMax: 100, icon: '⚪', label: 'Plata',  good: true },
+      esmeraldas: { amount: 0,   max: 50,  baseMax: 50,  icon: '💚', label: 'Esmeraldas', good: true },
+      perlas:     { amount: 0,   max: 50,  baseMax: 50,  icon: '🦪', label: 'Perlas', good: true },
+      tejidos:    { amount: 0,   max: 100, baseMax: 100, icon: '🧵', label: 'Tejidos', good: true },
     },
 
     // Districts: GeoJSON-backed entities placed on the real map
