@@ -89,20 +89,18 @@ export function validateTerrainForType(point, terrainRequirement, ctx = {}) {
         : { ok: false, terrain, reason: 'Debe construirse sobre el agua.' };
 
     case 'coast': {
-      // PUERTO — permissive: accept if any of these hold.
+      // PUERTO — permissive (per design): allow anywhere reasonably near water
+      // or within the predefined harbor area. No strict coast requirement.
       const touchesWater = polygonTouchesWater(ctx.polygon);
+      const dWater = distanceToWaterM(point);
       const ok =
-        terrain === 'coast' ||
-        touchesWater ||
-        nearPortStart(point) ||
-        inPortArea(point);
-      // Still reject if fully landlocked AND deep inland
-      if (terrain === 'water' && !touchesWater) {
-        return { ok: false, terrain, reason: 'El Puerto debe tocar la costa, no estar mar adentro.' };
-      }
+        inPortArea(point) ||
+        nearPortStart(point, 1500) ||
+        dWater <= 1500 ||
+        touchesWater;
       return ok
         ? { ok: true, terrain }
-        : { ok: false, terrain, reason: 'El Puerto debe estar junto a la costa o en la zona portuaria.' };
+        : { ok: false, terrain, reason: 'El Puerto debe estar cerca del agua o de la zona portuaria.' };
     }
 
     case 'coast_near':

@@ -11,6 +11,7 @@ import BuildPanel from './components/panels/BuildPanel.jsx';
 import DistrictPanel from './components/panels/DistrictPanel.jsx';
 import LayersPanel from './components/panels/LayersPanel.jsx';
 import PlacementConfirm from './components/panels/PlacementConfirm.jsx';
+import CityPanel from './components/panels/CityPanel.jsx';
 import { ShipyardPanel, DefensePanel, PortPanel } from './components/panels/CorePanels.jsx';
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
       {/* Sheets */}
       {sheet === 'build' && <BuildPanel />}
       {sheet === 'district' && <DistrictPanel />}
+      {sheet === 'city' && <CityPanel />}
       {sheet === 'layers' && <LayersPanel />}
       {sheet === 'shipyard' && <ShipyardPanel />}
       {sheet === 'defense' && <DefensePanel />}

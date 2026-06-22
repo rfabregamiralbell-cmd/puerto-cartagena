@@ -49,6 +49,22 @@ function staffingRatio(d) {
   return Math.min((d.assignedWorkers || 0) / d.workersRequired, 1);
 }
 
+// Footprint area scales with how many workers a district employs (capacity)
+// and its level, so bigger employers paint bigger zones on the map.
+function footprintArea(type, level = 1) {
+  const base = type.minAreaM2 || 2000;
+  const employFactor = 1 + (type.workersRequired || 0) * 0.08;
+  const levelFactor = 1 + (level - 1) * 0.35;
+  return base * employFactor * levelFactor;
+}
+
+// Influence radius (m) shown as a halo: grows with employment and level.
+function influenceRadiusM(type, level = 1) {
+  const base = Math.sqrt(footprintArea(type, level) / Math.PI);
+  const reach = { puerto: 2.2, aduana: 1.8, almacen: 1.6, fortaleza: 2.0, cabildo: 2.0 }[type.id] || 1.3;
+  return Math.round(base * reach);
+}
+
 // ── Orientation helpers for shape autofill ─────────────────
 function nearestWaterPoint(point) {
   // Aim toward the closest water-zone vertex (cheap, good enough for orienting)
@@ -165,7 +181,7 @@ export function gameReducer(state, action) {
         orientTo = nearestDistrictPoint(s, point) || nearestWaterPoint(point);
       }
 
-      const polygon = generateDistrictShape(point, type.shape || 'compact', type.minAreaM2 * 1.5, { orientTo });
+      const polygon = generateDistrictShape(point, type.shape || 'compact', footprintArea(type, 1), { orientTo });
       const area = polygonAreaM2(polygon);
 
       // Validation chain (pass polygon so Puerto can check it touches water)
@@ -230,6 +246,7 @@ export function gameReducer(state, action) {
         lastProductionAt: Date.now(),
         buffer: {},        // accumulated, uncollected production (semi-active)
         connected: false,  // recomputed on tick: reaches a Puerto via roads
+        influenceRadiusM: influenceRadiusM(type, 1),
         cost: type.cost,
       };
 
@@ -267,7 +284,7 @@ export function gameReducer(state, action) {
       const resources = { ...s.resources };
       Object.entries(cost).forEach(([r, v]) => { resources[r] = { ...resources[r], amount: resources[r].amount - v }; });
       s.resources = resources;
-      s.districts = s.districts.map((x) => x.id === d.id ? { ...x, level: x.level + 1 } : x);
+      s.districts = s.districts.map((x) => x.id === d.id ? { ...x, level: x.level + 1, influenceRadiusM: influenceRadiusM(getType(x.type), x.level + 1) } : x);
       addXP(s, 15);
       recalcStorage(s);
       recalcDefense(s);

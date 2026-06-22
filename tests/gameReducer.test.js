@@ -261,3 +261,36 @@ describe('LOAD_STATE migration', () => {
     expect(s.districts[0].buffer).toBeDefined();
   });
 });
+
+// ── Spatial: dynamic footprint + influence + permissive port ──
+describe('dynamic footprint and influence', () => {
+  const rich = () => {
+    const s = createInitialState();
+    s.resources.oro.amount = 999;
+    s.resources.madera.amount = 200;
+    s.resources.piedra.amount = 200;
+    return s;
+  };
+  const build = (s, t, p) =>
+    gameReducer(gameReducer(gameReducer(s, { type: 'START_PLACEMENT', typeId: t }), { type: 'PREVIEW_PLACEMENT', point: p }), { type: 'CONFIRM_PLACEMENT' });
+
+  it('a higher-employment district paints a bigger footprint', () => {
+    const hac = build(rich(), 'hacienda', [10.45, -75.52]).districts.find((d) => d.type === 'hacienda');
+    const alm = build(rich(), 'almacen', [10.4236, -75.5378]).districts.find((d) => d.type === 'almacen');
+    expect(hac.areaM2).toBeGreaterThan(alm.areaM2);
+  });
+
+  it('stores an influence radius that grows on upgrade', () => {
+    let s = build(rich(), 'hacienda', [10.45, -75.52]);
+    const before = s.districts[0].influenceRadiusM;
+    expect(before).toBeGreaterThan(0);
+    s = gameReducer(s, { type: 'UPGRADE_DISTRICT', id: s.districts[0].id });
+    expect(s.districts[0].influenceRadiusM).toBeGreaterThan(before);
+  });
+
+  it('builds a Puerto at the inner harbor point', () => {
+    let s = rich();
+    s = gameReducer(gameReducer(gameReducer(s, { type: 'START_PLACEMENT', typeId: 'puerto' }), { type: 'PREVIEW_PLACEMENT', point: [10.410, -75.547] }), { type: 'CONFIRM_PLACEMENT' });
+    expect(s.districts.some((d) => d.type === 'puerto')).toBe(true);
+  });
+});

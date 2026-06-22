@@ -10,7 +10,7 @@ const LAYERS = [
   { key: 'buildings', icon: '📍', label: 'Edificios', desc: 'Marcadores del edificio principal' },
   { key: 'terrainDefense', icon: '🏰', label: 'Defensa del terreno', desc: 'Radio de cobertura de fortalezas' },
   { key: 'tradeRoutes', icon: '⛵', label: 'Rutas comerciales', desc: 'Líneas de comercio naval' },
-  { key: 'influence', icon: '✨', label: 'Influencia', desc: '(Próximamente)' },
+  { key: 'influence', icon: '✨', label: 'Influencia', desc: 'Halo de alcance de cada distrito (según empleo y nivel)' },
   { key: 'logistics', icon: '🛣️', label: 'Logística', desc: 'Caminos y conexiones entre distritos y el puerto' },
   { key: 'combat', icon: '⚔️', label: 'Combate', desc: '(Próximamente)' },
 ];

@@ -37,12 +37,15 @@ describe('validateTerrainForType - permissive Puerto (coast)', () => {
   it('accepts a Puerto at the predefined port start', () => {
     expect(validateTerrainForType(PORT, 'coast').ok).toBe(true);
   });
+  it('accepts a Puerto at the inner harbor (Bahía de las Ánimas)', () => {
+    expect(validateTerrainForType([10.410, -75.547], 'coast').ok).toBe(true);
+  });
   it('accepts a Puerto inside the port area even if slightly inland', () => {
     const nearArea = [PORT[0] + 0.003, PORT[1] + 0.003];
     expect(validateTerrainForType(nearArea, 'coast').ok).toBe(true);
   });
   it('rejects a Puerto deep inland far from water and port', () => {
-    expect(validateTerrainForType([10.4236, -75.5200], 'coast').ok).toBe(false);
+    expect(validateTerrainForType([10.4236, -75.5100], 'coast').ok).toBe(false);
   });
 });
 

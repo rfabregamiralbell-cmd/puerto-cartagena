@@ -69,7 +69,7 @@ export function createInitialState() {
       layers: {
         districts: true,
         buildings: true,
-        influence: false,
+        influence: true,
         logistics: false,
         terrainDefense: false,
         tradeRoutes: false,

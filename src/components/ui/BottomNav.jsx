@@ -6,6 +6,7 @@ import { useGame } from '../../state/GameContext.jsx';
 
 const NAV = [
   { sheet: 'build',    icon: '🏗️', label: 'Construir' },
+  { sheet: 'city',     icon: '🏛️', label: 'Ciudad' },
   { sheet: 'port',     icon: '⚓',  label: 'Puerto' },
   { sheet: 'shipyard', icon: '🚢', label: 'Flota' },
   { sheet: 'defense',  icon: '🏰', label: 'Defensa' },

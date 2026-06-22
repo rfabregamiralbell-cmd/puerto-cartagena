@@ -106,6 +106,25 @@ export default function GameMap() {
         );
       })}
 
+      {/* ── Influence layer: halo around each district (size = capacity/level) ── */}
+      {layers.influence && state.districts.map((d) => {
+        const type = getType(d.type);
+        return (
+          <Circle
+            key={`inf_${d.id}`}
+            center={d.mainBuildingPoint}
+            radius={d.influenceRadiusM || 200}
+            pathOptions={{
+              color: type?.color || '#888',
+              weight: 1,
+              opacity: 0.5,
+              fillColor: type?.color || '#888',
+              fillOpacity: 0.08,
+            }}
+          />
+        );
+      })}
+
       {/* ── Terrain defense layer: Fortaleza coverage ── */}
       {layers.terrainDefense && state.districts.filter((d) => d.type === 'fortaleza').map((d) => (
         <Circle
