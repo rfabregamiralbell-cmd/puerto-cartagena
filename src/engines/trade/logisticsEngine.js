@@ -9,13 +9,21 @@
 
 import { distanceM } from '../../utils/geoUtils.js';
 
-// Two districts are "linked" if their main points are within this distance.
+// Two districts are "linked" if their main points are within range.
+// The Puerto is the logistics hub (quays/access roads reach farther), so any
+// link involving a Puerto uses a larger range — this lets a road chain reach
+// a port that sits on the water's edge.
 const LINK_RANGE_M = 600;
+const PORT_LINK_RANGE_M = 1000;
 // A producer delivers if it can reach the Puerto within this many hops.
 const MAX_HOPS = 8;
 
+function linkRangeFor(a, b) {
+  return (a.type === 'puerto' || b.type === 'puerto') ? PORT_LINK_RANGE_M : LINK_RANGE_M;
+}
+
 /**
- * Build an adjacency map between districts that are within LINK_RANGE_M.
+ * Build an adjacency map between districts that are within link range.
  * @returns {Map<id, Set<id>>}
  */
 export function buildLinkGraph(districts) {
@@ -25,7 +33,7 @@ export function buildLinkGraph(districts) {
     for (let j = i + 1; j < districts.length; j++) {
       const a = districts[i], b = districts[j];
       if (!a.mainBuildingPoint || !b.mainBuildingPoint) continue;
-      if (distanceM(a.mainBuildingPoint, b.mainBuildingPoint) <= LINK_RANGE_M) {
+      if (distanceM(a.mainBuildingPoint, b.mainBuildingPoint) <= linkRangeFor(a, b)) {
         graph.get(a.id).add(b.id);
         graph.get(b.id).add(a.id);
       }

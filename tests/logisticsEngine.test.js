@@ -48,6 +48,19 @@ describe('isConnectedToPort', () => {
     const prod = D('p', 'hacienda', [10.4210, -75.5405]);
     expect(isConnectedToPort(prod, [prod])).toBe(false);
   });
+
+  it('a Puerto is a hub: connects producers within the larger port range (~1000m)', () => {
+    // ~820m away — beyond the normal 600m link range, within the port hub range
+    const prod = D('p', 'almacen', [10.4205, -75.5420]);
+    const portHub = D('pt2', 'puerto', [10.4150, -75.5470]);
+    expect(isConnectedToPort(prod, [prod, portHub])).toBe(true);
+  });
+
+  it('a far isolated producer (>1000m, no roads) does NOT connect', () => {
+    const prod = D('p', 'hacienda', [10.4450, -75.5250]);
+    const portHub = D('pt2', 'puerto', [10.4150, -75.5470]);
+    expect(isConnectedToPort(prod, [prod, portHub])).toBe(false);
+  });
 });
 
 describe('adjacencySynergy', () => {
