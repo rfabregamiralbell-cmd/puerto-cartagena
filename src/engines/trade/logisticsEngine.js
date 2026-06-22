@@ -13,8 +13,8 @@ import { distanceM } from '../../utils/geoUtils.js';
 // The Puerto is the logistics hub (quays/access roads reach farther), so any
 // link involving a Puerto uses a larger range — this lets a road chain reach
 // a port that sits on the water's edge.
-const LINK_RANGE_M = 600;
-const PORT_LINK_RANGE_M = 1000;
+const LINK_RANGE_M = 750;
+const PORT_LINK_RANGE_M = 1300;
 // A producer delivers if it can reach the Puerto within this many hops.
 const MAX_HOPS = 8;
 

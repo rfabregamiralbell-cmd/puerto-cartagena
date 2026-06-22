@@ -26,21 +26,21 @@ describe('isConnectedToPort', () => {
     expect(isConnectedToPort(prod, [prod, port])).toBe(true);
   });
 
-  it('a producer too far from the port is NOT connected directly', () => {
-    const prod = D('p', 'hacienda', [10.4270, -75.5405]); // ~667m
+  it('a producer beyond the port hub range is NOT connected directly', () => {
+    const prod = D('p', 'hacienda', [10.4360, -75.5405]); // ~1670m, beyond hub
     expect(isConnectedToPort(prod, [prod, port])).toBe(false);
   });
 
   it('a producer connects THROUGH a road chain', () => {
-    const road = D('r', 'camino', [10.4240, -75.5405]);   // ~334m from each
-    const prod = D('p', 'hacienda', [10.4270, -75.5405]);
+    const road = D('r', 'camino', [10.4280, -75.5405]);   // ~779m from port (hub)
+    const prod = D('p', 'hacienda', [10.4345, -75.5405]);  // ~723m from road, ~1503m from port
     expect(isConnectedToPort(prod, [prod, road, port])).toBe(true);
   });
 
   it('non-road intermediate districts do NOT relay goods', () => {
     // an almacen in the middle is not a road, so it should not relay
-    const mid = D('m', 'almacen', [10.4240, -75.5405]);
-    const prod = D('p', 'hacienda', [10.4270, -75.5405]);
+    const mid = D('m', 'almacen', [10.4280, -75.5405]);
+    const prod = D('p', 'hacienda', [10.4345, -75.5405]); // ~1503m from port, blocked
     expect(isConnectedToPort(prod, [prod, mid, port])).toBe(false);
   });
 
@@ -50,7 +50,7 @@ describe('isConnectedToPort', () => {
   });
 
   it('a Puerto is a hub: connects producers within the larger port range (~1000m)', () => {
-    // ~820m away — beyond the normal 600m link range, within the port hub range
+    // ~820m away — beyond the normal land link range, within the port hub range
     const prod = D('p', 'almacen', [10.4205, -75.5420]);
     const portHub = D('pt2', 'puerto', [10.4150, -75.5470]);
     expect(isConnectedToPort(prod, [prod, portHub])).toBe(true);
